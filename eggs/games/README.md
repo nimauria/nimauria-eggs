@@ -1,137 +1,212 @@
-🌊 Windrose – Dedicated Server (Nimauria Eggs)
+# 🌊 Windrose – Dedicated Server (Nimauria Eggs)
 
 Embark on a PvE survival adventure in the Age of Piracy. Fight on land and sea, solo or with friends. Build, craft, and explore a vast open world filled with dark secrets.
 
 Master soulslike combat, command your ship, and plunder unspoken treasures.
 
-Windrose is a co-op pirate survival game featuring exploration, base building, naval combat, and progression across procedurally generated worlds.
+Windrose is a co-op pirate survival game featuring exploration, base building, naval combat, and procedurally generated worlds. It supports both self-hosted and dedicated servers, allowing persistent multiplayer experiences.
 
-⚙️ About This Egg
+---
 
-This egg installs and runs the Windrose Dedicated Server using SteamCMD and Wine.
+## ⚙️ About This Egg
 
-Features
-Automated installation via SteamCMD
-Windows server support through Wine
-Configurable server settings (JSON-based)
-Invite code system for easy access
-Optional password protection
-Optional Direct IP connection mode
-Optimised backup rules (.pteroignore)
-⚠️ Important Notes
-Windrose does not currently provide a native Linux server build
-This egg runs the Windows server via Wine
+This egg installs and runs the **Windrose Dedicated Server** using SteamCMD and Wine.
 
-Server configuration is handled via:
+### Features
 
-/home/container/R5/ServerDescription.json
+* Automated installation via SteamCMD
+* Windows server support through Wine
+* Configurable server settings (JSON-based)
+* Invite code system for easy access
+* Optional password protection
+* Optional Direct IP connection mode
+* Optimised backup rules (`.pteroignore`)
 
-World data is stored in:
+---
 
-/home/container/R5/Saved
-Invite code is the default connection method
-Direct IP is optional and may require manual network configuration
-🧠 Server Requirements
-Players	RAM	Storage
-2	8 GB	32 GB SSD
-4	12 GB	32 GB SSD
-10	16 GB	32 GB SSD
+## ⚠️ Important Notes
 
-SSD storage is strongly recommended for performance.
+* Windrose does **not currently provide a native Linux server build**
+* This egg runs the **Windows server via Wine**
+* Server configuration is handled via:
 
-🔌 Connecting to the Server
-Method 1 — Invite Code (Recommended)
-Uses built-in NAT punch-through
-No manual port forwarding required (usually)
+  ```
+  /home/container/R5/ServerDescription.json
+  ```
+* World data is stored in:
 
-Found in:
+  ```
+  /home/container/R5/Saved
+  ```
+* Invite code is the default connection method
+* Direct IP is optional and may require manual network configuration
 
-/home/container/R5/ServerDescription.json
-Method 2 — Direct Connect
+---
 
-Connect using:
+## 🧠 Server Requirements
 
-IP:PORT
-Requires:
-Correct port forwarding
-Firewall configuration
-Possibly disabling VPN/proxy
-🌐 Server Ports
-Invite Code Mode
-Uses dynamic NAT punch-through (UPnP required)
-Direct Connect Mode
-Uses assigned Game Port (default: 7777)
-🧪 Known Limitations
-Limited admin tools (early access game)
-Some server behaviour must be configured manually via JSON
-Docker-based setups are unreliable for this game currently
-Performance may degrade with larger player counts
-🚀 Installation Details
+| Players | RAM   | Storage   |
+| ------- | ----- | --------- |
+| 2       | 8 GB  | 32 GB SSD |
+| 4       | 12 GB | 32 GB SSD |
+| 10      | 16 GB | 32 GB SSD |
+
+> SSD storage is strongly recommended for performance.
+
+---
+
+## 🔌 Connecting to the Server
+
+### Method 1 — Invite Code (Recommended)
+
+* Uses NAT punch-through
+* No manual port forwarding required (in most cases)
+* Invite code is located in:
+
+  ```
+  /home/container/R5/ServerDescription.json
+  ```
+
+### Method 2 — Direct Connect
+
+* Connect using:
+
+  ```
+  IP:PORT
+  ```
+* Requires:
+
+  * Port forwarding
+  * Firewall configuration
+  * Possibly disabling VPN/proxy
+
+---
+
+## 🌐 Server Ports
+
+### Invite Code Mode
+
+* Uses dynamic NAT punch-through (requires UPnP support)
+
+### Direct Connect Mode
+
+* Uses your allocated **Game Port** (default: `7777`)
+
+---
+
+## 🧪 Known Limitations
+
+* No built-in admin commands currently
+* Limited server-side control options
+* Docker setups may be unreliable
+* Performance may degrade with higher player counts
+* Networking issues may occur depending on ISP or region
+
+---
+
+## 🚀 Installation Details
 
 This egg:
 
-Downloads SteamCMD
-Installs Windrose using App ID: 4129620
-Forces Windows platform install
-Sets up Steam libraries
-Configures backup exclusions automatically
-📁 Important Paths
-Server Config:
+* Downloads SteamCMD
+* Installs Windrose using App ID: `4129620`
+* Forces Windows platform install
+* Sets up Steam libraries
+* Creates backup optimisation rules
+
+---
+
+## 📁 Important Paths
+
+**Server Config**
+
+```
 R5/ServerDescription.json
+```
 
-Logs:
+**Logs**
+
+```
 R5/Saved/Logs/
+```
 
-World Data:
+**World Data**
+
+```
 R5/Saved/SaveProfiles/
-🔧 Key Variables
-Variable	Description
-SERVER_NAME	Server display name
-INVITE_CODE	Join code (6–32 chars)
-MAX_PLAYERS	Max player count
-IS_PASSWORD_PROTECTED	Enable password
-SERVER_PASSWORD	Server password
-USE_DIRECT_CONNECTION	Enable direct IP
-DIRECT_CONNECTION_SERVER_PORT	Game port
-WORLD_ISLAND_ID	World identifier
-🧰 Troubleshooting
-Crashes / Illegal Instruction
+```
+
+---
+
+## 🔧 Key Variables
+
+| Variable                        | Description            |
+| ------------------------------- | ---------------------- |
+| `SERVER_NAME`                   | Server display name    |
+| `INVITE_CODE`                   | Join code (6–32 chars) |
+| `MAX_PLAYERS`                   | Max player count       |
+| `IS_PASSWORD_PROTECTED`         | Enable password        |
+| `SERVER_PASSWORD`               | Server password        |
+| `USE_DIRECT_CONNECTION`         | Enable direct IP       |
+| `DIRECT_CONNECTION_SERVER_PORT` | Game port              |
+| `WORLD_ISLAND_ID`               | World identifier       |
+
+---
+
+## 🧰 Troubleshooting
+
+### Crashes / Illegal Instruction
 
 If running in a VM:
 
-Set CPU type to:
-host
-passthrough
-Players Can’t Connect
-Check:
-Invite code is correct
-Server is running
-VPN/proxy disabled
-UPnP enabled (invite mode)
-Ports forwarded (direct mode)
-Logs Not Appearing
+* Set CPU type to:
+
+  * `host`
+  * `passthrough`
+
+### Players Can’t Connect
 
 Check:
 
+* Invite code is correct
+* Server is running
+* VPN/proxy disabled
+* UPnP enabled (invite mode)
+* Ports forwarded (direct mode)
+
+### Logs Not Appearing
+
+Check:
+
+```
 R5/Saved/Logs/R5.log
-📦 Backup Optimisation
+```
 
-This egg includes a .pteroignore:
+---
 
-excludes unnecessary files
-keeps only essential world + config data
-improves backup speed and size
-🏗️ Part of Nimauria Eggs
+## 📦 Backup Optimisation
 
-This egg is part of:
+This egg includes a `.pteroignore` file:
 
-Nimauria Eggs
+* Excludes unnecessary files
+* Keeps essential world + config data
+* Improves backup speed and size
+
+---
+
+## 🏗️ Part of Nimauria Eggs
+
+**Nimauria Eggs**
 Production-grade Pterodactyl egg collection built for consistency, reliability, and maintainability.
 
-📜 License
+---
 
-MIT License — see LICENSE file.
+## 📜 License
 
-💬 Notes
+MIT License — see `LICENSE` file.
 
-Windrose is still in active development, and server behaviour may change over time. Expect updates as the game evolves.
+---
+
+## 💬 Notes
+
+Windrose is in early access and server functionality is still evolving. Expect changes, improvements, and updates o
