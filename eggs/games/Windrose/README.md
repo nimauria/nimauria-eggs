@@ -204,9 +204,3 @@ Production-grade Pterodactyl egg collection built for consistency, reliability, 
 ## 📜 License
 
 MIT License — see `LICENSE` file.
-
----
-
-## 💬 Notes
-
-Windrose is in early access and server functionality is still evolving. Expect changes, improvements, and updates o
