@@ -10,9 +10,10 @@ Nimauria Eggs is a curated repository of Pterodactyl eggs designed to replace ou
 
 ### 🎮 Games
 
-| Name     | Description                            | Path                                         |
-| -------- | -------------------------------------- | -------------------------------------------- |
-| Windrose | Dedicated server using SteamCMD + Wine | [eggs/games/Windrose](./eggs/games/Windrose) |
+| Name                         | Description                                              | Path                                                                 |
+|------------------------------|----------------------------------------------------------|----------------------------------------------------------------------|
+| Return to Moria              | Dedicated server using SteamCMD + Wine                  | [eggs/games/The Lord of the Rings: Return to Moria](./eggs/games/The%20Lord%20of%20the%20Rings%3A%20Return%20to%20Moria) |
+| Windrose *(WIP / optional)*  | Dedicated server using SteamCMD + Wine                  | [eggs/games/Windrose](./eggs/games/Windrose) |
 
 ---
 
