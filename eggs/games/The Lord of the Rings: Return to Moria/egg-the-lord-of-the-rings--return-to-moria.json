@@ -1,0 +1,214 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-04-21T19:08:45+01:00",
+    "name": "The Lord of the Rings: Return to Moria",
+    "author": "contact@nimauria.co.uk",
+    "description": "The only survival crafting game set in the Fourth Age of Middle-earth\u2122. Embark on an epic journey to reclaim the Dwarven homeland of Moria, and explore, craft, and build in procedurally generated worlds. Play as a solo adventurer, or join friends in co-op gameplay for up to 8 players.",
+    "features": [
+        "steam_disk_space"
+    ],
+    "docker_images": {
+        "ghcr.io\/ptero-eggs\/yolks:wine_latest": "ghcr.io\/ptero-eggs\/yolks:wine_latest"
+    },
+    "file_denylist": [],
+    "startup": "wine .\/Moria\/Binaries\/Win64\/MoriaServer-Win64-Shipping.exe -log & MORIA_PID=$!; LOG=\".\/Moria\/Saved\/Logs\/Moria.log\"; for i in {1..20}; do [ -f \"$LOG\" ] && break; sleep 1; done; [ -f \"$LOG\" ] && tail -n +1 -F \"$LOG\" --pid=$MORIA_PID 2>\/dev\/null || { echo \"Log file not found, continuing without tail...\"; wait $MORIA_PID; }",
+    "config": {
+        "files": "{\r\n    \"MoriaServerConfig.ini\": {\r\n        \"parser\": \"ini\",\r\n        \"find\": {\r\n            \"Host.ListenPort\": \"{{server.build.default.port}}\",\r\n            \"Main.OptionalPassword\": \"{{server.build.env.SERVER_PASSWORD}}\",\r\n            \"World.Name\": \"\\\"{{server.build.env.WORLD_NAME}}\\\"\",\r\n            \"[World.Create].Type\": \"{{server.build.env.WORLD_TYPE}}\",\r\n            \"[World.Create].Difficulty.Preset\": \"{{server.build.env.DIFFICULTY_PRESET}}\",\r\n            \"[World.Create].Difficulty.Custom.CombatDifficulty\": \"{{server.build.env.CUSTOM_COMBAT_DIFFICULTY}}\",\r\n            \"[World.Create].Difficulty.Custom.EnemyAggression\": \"{{server.build.env.CUSTOM_ENEMY_AGGRESSION}}\",\r\n            \"[World.Create].Difficulty.Custom.SurvivalDifficulty\": \"{{server.build.env.CUSTOM_SURVIVAL_DIFFICULTY}}\",\r\n            \"[World.Create].Difficulty.Custom.MiningDrops\": \"{{server.build.env.CUSTOM_MINING_DROPS}}\",\r\n            \"[World.Create].Difficulty.Custom.WorldDrops\": \"{{server.build.env.CUSTOM_WORLD_DROPS}}\",\r\n            \"[World.Create].Difficulty.Custom.HordeFrequency\": \"{{server.build.env.CUSTOM_HORDE_FREQUENCY}}\",\r\n            \"[World.Create].Difficulty.Custom.PatrolFrequency\": \"{{server.build.env.CUSTOM_PATROL_FREQUENCY}}\",\r\n            \"[World.Create].OptionalDLC.Array\": \"{{server.build.env.OPTIONAL_DLC}}\",\r\n            \"[World.Create].UpgradeOptionalDLC.Array\": \"{{server.build.env.UPGRADE_OPTIONAL_DLC}}\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n\"done\":\"created session query id:\"\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/bash\r\nset -euo pipefail\r\n\r\necho \"Starting Return to Moria install...\"\r\n\r\n## just in case someone removed the defaults.\r\nSTEAM_USER=\"${STEAM_USER:-}\"\r\nSTEAM_PASS=\"${STEAM_PASS:-}\"\r\nSTEAM_AUTH=\"${STEAM_AUTH:-}\"\r\nSRCDS_APPID=\"${SRCDS_APPID:-3349480}\"\r\nAUTO_UPDATE=\"${AUTO_UPDATE:-1}\"\r\n\r\nif [[ -z \"${STEAM_USER}\" || -z \"${STEAM_PASS}\" ]]; then\r\n    echo -e \"steam user is not set.\\n\"\r\n    echo -e \"Using anonymous user.\\n\"\r\n    STEAM_USER=\"anonymous\"\r\n    STEAM_PASS=\"\"\r\n    STEAM_AUTH=\"\"\r\nelse\r\n    echo -e \"user set to ${STEAM_USER}\\n\"\r\nfi\r\n\r\n## download and install steamcmd\r\ncd \/tmp\r\nmkdir -p \/mnt\/server\/steamcmd\r\nmkdir -p \/mnt\/server\/steamapps\r\n\r\necho \"Downloading SteamCMD...\"\r\ncurl -fsSL -o steamcmd.tar.gz https:\/\/steamcdn-a.akamaihd.net\/client\/installer\/steamcmd_linux.tar.gz\r\n\r\necho \"Extracting SteamCMD...\"\r\ntar -xzvf steamcmd.tar.gz -C \/mnt\/server\/steamcmd\r\n\r\ncd \/mnt\/server\/steamcmd\r\n\r\n# Matches the older installer behaviour more closely\r\nchown -R root:root \/mnt || true\r\nexport HOME=\/mnt\/server\r\n\r\necho \"Installing Return to Moria Dedicated Server (App ID: ${SRCDS_APPID})...\"\r\n\r\nif [[ \"${STEAM_USER}\" == \"anonymous\" ]]; then\r\n    if [[ \"${AUTO_UPDATE}\" == \"0\" || \"${AUTO_UPDATE}\" == \"false\" ]]; then\r\n        .\/steamcmd.sh \\\r\n          +force_install_dir \/mnt\/server \\\r\n          +login anonymous \\\r\n          +@sSteamCmdForcePlatformType windows \\\r\n          +app_update \"${SRCDS_APPID}\" \\\r\n          +quit\r\n    else\r\n        .\/steamcmd.sh \\\r\n          +force_install_dir \/mnt\/server \\\r\n          +login anonymous \\\r\n          +@sSteamCmdForcePlatformType windows \\\r\n          +app_update \"${SRCDS_APPID}\" validate \\\r\n          +quit\r\n    fi\r\nelse\r\n    if [[ -n \"${STEAM_AUTH}\" ]]; then\r\n        if [[ \"${AUTO_UPDATE}\" == \"0\" || \"${AUTO_UPDATE}\" == \"false\" ]]; then\r\n            .\/steamcmd.sh \\\r\n              +force_install_dir \/mnt\/server \\\r\n              +login \"${STEAM_USER}\" \"${STEAM_PASS}\" \"${STEAM_AUTH}\" \\\r\n              +@sSteamCmdForcePlatformType windows \\\r\n              +app_update \"${SRCDS_APPID}\" \\\r\n              +quit\r\n        else\r\n            .\/steamcmd.sh \\\r\n              +force_install_dir \/mnt\/server \\\r\n              +login \"${STEAM_USER}\" \"${STEAM_PASS}\" \"${STEAM_AUTH}\" \\\r\n              +@sSteamCmdForcePlatformType windows \\\r\n              +app_update \"${SRCDS_APPID}\" validate \\\r\n              +quit\r\n        fi\r\n    else\r\n        if [[ \"${AUTO_UPDATE}\" == \"0\" || \"${AUTO_UPDATE}\" == \"false\" ]]; then\r\n            .\/steamcmd.sh \\\r\n              +force_install_dir \/mnt\/server \\\r\n              +login \"${STEAM_USER}\" \"${STEAM_PASS}\" \\\r\n              +@sSteamCmdForcePlatformType windows \\\r\n              +app_update \"${SRCDS_APPID}\" \\\r\n              +quit\r\n        else\r\n            .\/steamcmd.sh \\\r\n              +force_install_dir \/mnt\/server \\\r\n              +login \"${STEAM_USER}\" \"${STEAM_PASS}\" \\\r\n              +@sSteamCmdForcePlatformType windows \\\r\n              +app_update \"${SRCDS_APPID}\" validate \\\r\n              +quit\r\n        fi\r\n    fi\r\nfi\r\n\r\nmkdir -p \/mnt\/server\/.steam\/sdk32\r\ncp -fv linux32\/steamclient.so \/mnt\/server\/.steam\/sdk32\/steamclient.so\r\n\r\nmkdir -p \/mnt\/server\/.steam\/sdk64\r\ncp -fv linux64\/steamclient.so \/mnt\/server\/.steam\/sdk64\/steamclient.so\r\n\r\nif [[ ! -f \/mnt\/server\/.pteroignore ]]; then\r\n    echo \"Creating .pteroignore for optimized backups\"\r\n    cat << 'EOF' > \/mnt\/server\/.pteroignore\r\nsteamcmd\r\nsteamapps\r\n*.log\r\n*.tmp\r\n*.bak\r\nSaved\/Crashes\r\nSaved\/Logs\r\nEOF\r\nfi\r\n\r\necho \"-----------------------------------------\"\r\necho \"Installation completed...\"\r\necho \"-----------------------------------------\"",
+            "container": "ghcr.io\/ptero-eggs\/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "World Name",
+            "description": "Name of the world save file to load or create. \r\nIf the file does not exist, a new world will be generated using this name.",
+            "env_variable": "WORLD_NAME",
+            "default_value": "MoriaServer",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:80",
+            "field_type": "text"
+        },
+        {
+            "name": "Server Password",
+            "description": "Optional password required to join the server. Case-sensitive.",
+            "env_variable": "SERVER_PASSWORD",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:20",
+            "field_type": "text"
+        },
+        {
+            "name": "World Type",
+            "description": "World generation mode for newly created worlds.",
+            "env_variable": "WORLD_TYPE",
+            "default_value": "campaign",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:campaign,sandbox",
+            "field_type": "text"
+        },
+        {
+            "name": "Difficulty Preset",
+            "description": "Overall world difficulty preset.",
+            "env_variable": "DIFFICULTY_PRESET",
+            "default_value": "normal",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:story,solo,normal,hard,custom",
+            "field_type": "text"
+        },
+        {
+            "name": "Custom Combat Difficulty",
+            "description": "Enemy base damage and hit points. Used when Difficulty Preset is custom.",
+            "env_variable": "CUSTOM_COMBAT_DIFFICULTY",
+            "default_value": "default",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:verylow,low,default,high,veryhigh",
+            "field_type": "text"
+        },
+        {
+            "name": "Custom Enemy Aggression",
+            "description": "Enemy aggression level. Used when Difficulty Preset is custom.",
+            "env_variable": "CUSTOM_ENEMY_AGGRESSION",
+            "default_value": "high",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:verylow,low,default,high,veryhigh",
+            "field_type": "text"
+        },
+        {
+            "name": "Custom Survival Difficulty",
+            "description": "Survival pressure and related survival tuning. Used when Difficulty Preset is custom.",
+            "env_variable": "CUSTOM_SURVIVAL_DIFFICULTY",
+            "default_value": "default",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:verylow,low,default,high,veryhigh",
+            "field_type": "text"
+        },
+        {
+            "name": "Custom Mining Drops",
+            "description": "Ore yield from mining veins. Used when Difficulty Preset is custom.",
+            "env_variable": "CUSTOM_MINING_DROPS",
+            "default_value": "default",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:verylow,low,default,high,veryhigh",
+            "field_type": "text"
+        },
+        {
+            "name": "Custom World Drops",
+            "description": "Loot drop rates from enemies and world rewards. Used when Difficulty Preset is custom.",
+            "env_variable": "CUSTOM_WORLD_DROPS",
+            "default_value": "default",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:verylow,low,default,high,veryhigh",
+            "field_type": "text"
+        },
+        {
+            "name": "Custom Horde Frequency",
+            "description": "How often noisy actions trigger a horde. Used when Difficulty Preset is custom.",
+            "env_variable": "CUSTOM_HORDE_FREQUENCY",
+            "default_value": "default",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:verylow,low,default,high,veryhigh",
+            "field_type": "text"
+        },
+        {
+            "name": "Custom Patrol Frequency",
+            "description": "How often enemy patrol groups spawn. Used when Difficulty Preset is custom.",
+            "env_variable": "CUSTOM_PATROL_FREQUENCY",
+            "default_value": "default",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:verylow,low,default,high,veryhigh",
+            "field_type": "text"
+        },
+        {
+            "name": "Optional DLC",
+            "description": "Optional DLC content to enable for newly created worlds.",
+            "env_variable": "OPTIONAL_DLC",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:none,DurinsFolk",
+            "field_type": "text"
+        },
+        {
+            "name": "Upgrade Existing World DLC",
+            "description": "DLC content to apply when upgrading an existing world.",
+            "env_variable": "UPGRADE_OPTIONAL_DLC",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:none,DurinsFolk",
+            "field_type": "text"
+        },
+        {
+            "name": "Steam App ID",
+            "description": "Steam application ID for the dedicated server.",
+            "env_variable": "SRCDS_APPID",
+            "default_value": "3349480",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|string|in:3349480",
+            "field_type": "text"
+        },
+        {
+            "name": "Install Windows Server Build",
+            "description": "Required because the official dedicated server build is Windows-only.",
+            "env_variable": "WINDOWS_INSTALL",
+            "default_value": "1",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|string|in:1",
+            "field_type": "text"
+        },
+        {
+            "name": "Winetricks Packages",
+            "description": "Winetricks components to install for Wine compatibility.",
+            "env_variable": "WINETRICKS_RUN",
+            "default_value": "vcrun2022",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|string|max:100",
+            "field_type": "text"
+        },
+        {
+            "name": "Wine Debug",
+            "description": "Wine debug flags.",
+            "env_variable": "WINEDEBUG",
+            "default_value": "-all",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|string|max:50",
+            "field_type": "text"
+        },
+        {
+            "name": "Auto Update Server",
+            "description": "Controls whether the server automatically checks for and installs updates during startup. Set to true to enable automatic updates or false to disable.",
+            "env_variable": "AUTO_UPDATE",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        }
+    ]
+}
