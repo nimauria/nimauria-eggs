@@ -126,4 +126,4 @@ https://hosting.nimauria.co.uk
 
 Created By
 
-Nimauria Hosting⁷
+Nimauria Hosting
