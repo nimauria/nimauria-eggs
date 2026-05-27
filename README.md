@@ -17,6 +17,14 @@ Nimauria Eggs is a curated repository of Pterodactyl eggs designed to replace ou
 
 ---
 
+### 🌐 Applications
+
+| Name | Description | Path |
+|---|---|---|
+| Uptime Kuma | Modern self-hosted uptime monitoring and status page service using Node.js | [eggs/applications/Uptime Kuma](./eggs/applications/Uptime%20Kuma) |
+
+---
+
 ## 🧠 Project Goals
 
 This repository is being built with a focus on:
