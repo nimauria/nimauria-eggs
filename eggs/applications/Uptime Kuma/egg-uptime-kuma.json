@@ -1,0 +1,73 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-05-27T11:50:26+01:00",
+    "name": "Uptime Kuma",
+    "author": "nimauria@nimauria.co.uk",
+    "description": "Uptime Kuma is a modern, self-hosted monitoring solution designed for uptime tracking, status pages, notifications, and service health monitoring. This Nimauria Hosting egg provides a clean, configurable deployment with timezone support, flexible Node.js runtime selection, and simplified update management.",
+    "features": [],
+    "docker_images": {
+        "ghcr.io\/ptero-eggs\/yolks:nodejs_22": "ghcr.io\/ptero-eggs\/yolks:nodejs_22",
+        "ghcr.io\/ptero-eggs\/yolks:nodejs_20": "ghcr.io\/ptero-eggs\/yolks:nodejs_20"
+    },
+    "file_denylist": [],
+    "startup": "export TZ=\"${TZ:-Europe\/London}\"; export NODE_ENV=\"{{NODE_ENV}}\"; cd \/home\/container; if [[ -d .git ]] && [[ \"{{AUTO_UPDATE}}\" == \"true\" ]]; then npm run setup; fi; exec \/usr\/local\/bin\/node \/home\/container\/{{JS_FILE}} --port={{SERVER_PORT}}",
+    "config": {
+        "files": "{}",
+        "startup": "{\r\n    \"done\": \"[SERVER] INFO: Listening on \"\r\n}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/bash\r\nset -Eeuo pipefail\r\n\r\n# =========================================================\r\n# Nimauria Hosting - Uptime Kuma Installer\r\n# =========================================================\r\n# Repository:\r\n# https:\/\/github.com\/louislam\/uptime-kuma\r\n#\r\n# This installer is designed for:\r\n# - Pterodactyl Panel\r\n# - Wings\r\n# - Node.js 20+\r\n# - Debian-based installer containers\r\n#\r\n# Features:\r\n# - Safe Git updates\r\n# - Existing install detection\r\n# - Persistent data directory handling\r\n# - Node.js version validation\r\n# - Better logging and failure handling\r\n# - Cleaner production deployment flow\r\n# =========================================================\r\n\r\necho \"=========================================================\"\r\necho \"          Nimauria Hosting - Uptime Kuma\"\r\necho \"=========================================================\"\r\necho \"Starting installation process...\"\r\necho \"Container: $(hostname)\"\r\necho \"Install Time: $(date)\"\r\necho \"=========================================================\"\r\n\r\nSERVER_DIR=\"\/mnt\/server\"\r\nDEFAULT_REPO=\"https:\/\/github.com\/louislam\/uptime-kuma\"\r\n\r\n# ---------------------------------------------------------\r\n# STEP 1 - PREPARE SERVER DIRECTORY\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[1\/8] Preparing server directory...\"\r\nmkdir -p \"${SERVER_DIR}\"\r\ncd \"${SERVER_DIR}\"\r\n\r\n# ---------------------------------------------------------\r\n# STEP 2 - UPDATE INSTALLER PACKAGES\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[2\/8] Updating installer packages...\"\r\n\r\napt update\r\n\r\napt install -y \\\r\n    git \\\r\n    curl \\\r\n    ca-certificates \\\r\n    python3 \\\r\n    make \\\r\n    g++ \\\r\n    build-essential\r\n\r\n# ---------------------------------------------------------\r\n# STEP 3 - VALIDATE REQUIRED TOOLS\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[3\/8] Validating runtime environment...\"\r\necho \"Installing Node.js 22...\"\r\ncurl -fsSL https:\/\/deb.nodesource.com\/setup_22.x | bash -\r\napt install -y nodejs\r\ncommand -v node >\/dev\/null 2>&1 || {\r\n    echo \"ERROR: Node.js is missing from the installer container.\"\r\n    exit 1\r\n}\r\n\r\ncommand -v npm >\/dev\/null 2>&1 || {\r\n    echo \"ERROR: npm is missing from the installer container.\"\r\n    exit 1\r\n}\r\n\r\ncommand -v git >\/dev\/null 2>&1 || {\r\n    echo \"ERROR: git is missing from the installer container.\"\r\n    exit 1\r\n}\r\n\r\nNODE_MAJOR=\"$(node -v | sed 's\/v\/\/' | cut -d. -f1)\"\r\n\r\nif [ \"${NODE_MAJOR}\" -lt 20 ]; then\r\n    echo \"ERROR: Node.js 20 or newer is required.\"\r\n    echo \"Current version: $(node -v)\"\r\n    exit 1\r\nfi\r\n\r\necho \"Node Version: $(node -v)\"\r\necho \"NPM Version: $(npm -v)\"\r\necho \"Git Version: $(git --version)\"\r\n\r\n# ---------------------------------------------------------\r\n# STEP 4 - PREPARE GIT REPOSITORY\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[4\/8] Preparing Git repository...\"\r\n\r\nREPO=\"${GIT_ADDRESS:-$DEFAULT_REPO}\"\r\n\r\ngit config --global --add safe.directory \"${SERVER_DIR}\"\r\n\r\necho \"Repository: ${REPO}\"\r\n\r\n# ---------------------------------------------------------\r\n# STEP 5 - INSTALL OR UPDATE\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[5\/8] Installing or updating Uptime Kuma...\"\r\n\r\nif [ -d \".git\" ]; then\r\n\r\n    echo \"Existing installation detected.\"\r\n    echo \"Updating existing repository...\"\r\n\r\n    git remote set-url origin \"${REPO}\"\r\n\r\n    git fetch --all --prune\r\n\r\n    git pull --ff-only || {\r\n        echo \"\"\r\n        echo \"ERROR: Git fast-forward update failed.\"\r\n        echo \"Local changes may exist in the container.\"\r\n        echo \"Installation aborted to prevent corruption.\"\r\n        exit 1\r\n    }\r\n\r\nelse\r\n\r\n    echo \"No existing installation detected.\"\r\n    echo \"Performing fresh installation...\"\r\n\r\n    if [ \"$(find \"${SERVER_DIR}\" -mindepth 1 -maxdepth 1 | wc -l)\" -gt 0 ]; then\r\n        echo \"\"\r\n        echo \"ERROR: Server directory is not empty.\"\r\n        echo \"Please use a clean installation directory.\"\r\n        exit 1\r\n    fi\r\n\r\n    git clone \"${REPO}\" .\r\nfi\r\n\r\n# ---------------------------------------------------------\r\n# STEP 6 - PREPARE DATA DIRECTORY\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[6\/8] Preparing persistent data directory...\"\r\n\r\nmkdir -p \"${SERVER_DIR}\/data\"\r\n\r\n# ---------------------------------------------------------\r\n# STEP 7 - INSTALL DEPENDENCIES\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[7\/8] Installing Uptime Kuma dependencies...\"\r\n\r\nnpm run setup\r\n\r\n# ---------------------------------------------------------\r\n# STEP 8 - VERIFY INSTALLATION\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"[8\/8] Verifying installation...\"\r\n\r\nif [ ! -f \"${SERVER_DIR}\/server\/server.js\" ]; then\r\n    echo \"\"\r\n    echo \"ERROR: server\/server.js was not found.\"\r\n    echo \"The installation appears incomplete.\"\r\n    exit 1\r\nfi\r\n\r\n# ---------------------------------------------------------\r\n# COMPLETE\r\n# ---------------------------------------------------------\r\n\r\necho \"\"\r\necho \"=========================================================\"\r\necho \"      Nimauria Hosting - Installation Complete\"\r\necho \"=========================================================\"\r\necho \"Application: Uptime Kuma\"\r\necho \"Repository : ${REPO}\"\r\necho \"Install Dir: ${SERVER_DIR}\"\r\necho \"Data Dir   : ${SERVER_DIR}\/data\"\r\necho \"Node.js    : $(node -v)\"\r\necho \"Timezone   : ${TZ:-Not Set}\"\r\necho \"=========================================================\"\r\necho \"Uptime Kuma has been installed successfully.\"\r\necho \"=========================================================\"\r\n\r\nexit 0",
+            "container": "ghcr.io\/ptero-eggs\/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Auto Update",
+            "description": "Controls whether Uptime Kuma automatically checks for and installs updates during startup. Set to true to enable automatic updates or false to disable.",
+            "env_variable": "AUTO_UPDATE",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Node Environment",
+            "description": "Sets the Node.js runtime environment mode.",
+            "env_variable": "NODE_ENV",
+            "default_value": "production",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string|in:production,development",
+            "field_type": "text"
+        },
+        {
+            "name": "Git Repository",
+            "description": "The Git repository used to download Uptime Kuma. Do not change this unless you know exactly what you are doing.",
+            "env_variable": "GIT_ADDRESS",
+            "default_value": "https:\/\/github.com\/louislam\/uptime-kuma",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string|max:150",
+            "field_type": "text"
+        },
+        {
+            "name": "Server JS File",
+            "description": "The main Uptime Kuma server JavaScript file used to start the application. Do not change this unless you know exactly what you are doing.",
+            "env_variable": "JS_FILE",
+            "default_value": "server\/server.js",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string|max:64",
+            "field_type": "text"
+        }
+    ]
+}
